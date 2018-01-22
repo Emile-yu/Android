@@ -18,6 +18,7 @@ import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.SupportStreetViewPanoramaFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -30,8 +31,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LatLng start ;
 
+    int current = 0;
 
-    List<LatLng> position = new ArrayList<LatLng>();
+    List<LatLng> ListCity = new ArrayList<LatLng>();
 
     private AlertDialog alert;
     private AlertDialog.Builder builder;
@@ -47,10 +49,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         int lvl = getIntent().getIntExtra("lvl",0);
         if(lvl == 0){
-            start = new LatLng(-33.87365, 151.20689);
-            position.add(new LatLng(40.7248846, -73.98639679));
-            position.add(new LatLng(39.70718666, -99.37133789));
-            position.add(new LatLng(48.63290859, 2.26318359));
+            ListCity.add(new LatLng(40.7248846, -73.98639679));
+            ListCity.add(new LatLng(39.70718666, -99.37133789));
+            ListCity.add(new LatLng(48.63290859, 2.26318359));
         }
 
         if(lvl == 1){
@@ -60,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(lvl == 2){
             start = new LatLng(63.87365, 151.20689);
         }
+        start = ListCity.get(current);
 
         streetViewPanoramaFragment =
                 (SupportStreetViewPanoramaFragment) getSupportFragmentManager().findFragmentById(R.id.streetviewpanorama);
@@ -91,6 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 MarkerOptions markerOptions = new MarkerOptions();
 
                 markerOptions.position(latLng);
+
                 markerOptions.title(latLng.latitude + " : " + latLng.longitude);
                 mMap.clear();
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -100,26 +103,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 builder = new AlertDialog.Builder(MapsActivity.this);
                 alert = builder
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setMessage("You are "+getDistance(start,latLng)+"km away")
+                        .setMessage("You are "+getDistance(ListCity.get(current),latLng)+"km away")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                start = latLng;
 
-                                streetViewPanoramaFragment.getStreetViewPanoramaAsync(
-                                        new OnStreetViewPanoramaReadyCallback() {
-                                            @Override
-                                            public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
-                                                panorama.setPosition(latLng);
+                                current++;
+                                if (current > ListCity.size() - 1) {
 
-                                            }
-                                        });                  }
+                                    EndGame();
+                                } else {
+                                    streetViewPanoramaFragment.getStreetViewPanoramaAsync(
+                                            (panorama) -> {
+                                                panorama.setPosition(ListCity.get(current));
+                                            });
+                                }
+                            }
+
+
                         })
                         .create();
                 alert.show();
 
             }
         });
+
+    }
+
+    public void EndGame(){
+
+    }
+
+    public void CompteScore(LatLng latLng){
 
     }
 
