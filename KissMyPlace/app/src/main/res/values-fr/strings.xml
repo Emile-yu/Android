@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">KissMyPlace</string>
+    <string name="lvl_0">JOUER NOVICE</string>
+    <string name="lvl_1">JOUER MOYEN</string>
+    <string name="lvl_2">JOUER EXPERT</string>
+    <string name="data">STATISTIQUES</string>
+</resources>

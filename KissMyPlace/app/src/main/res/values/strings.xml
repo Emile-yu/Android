@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">KissMyPlace</string>
+    <string name="lvl_0">PLAY NOVICE</string>
+    <string name="lvl_1">PLAY MEDIUM</string>
+    <string name="lvl_2">PLAY EXPERT</string>
+    <string name="data">STATISTICS</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
+</resources>

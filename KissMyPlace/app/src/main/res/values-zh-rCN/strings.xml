@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">KissMyPlace</string>
+    <string name="lvl_0">新手</string>
+    <string name="lvl_1">中级</string>
+    <string name="lvl_2">熟练</string>
+    <string name="data">数据</string>
+</resources>
