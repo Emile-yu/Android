@@ -3,7 +3,6 @@ package com.example.pc.kissmyplace;
 
 import android.os.Bundle;
 import android.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,8 @@ import com.google.android.gms.maps.MapsInitializer;
 public class MapFragment extends Fragment {
 
 
-    private MapView mapView;
-    private GoogleMap googleMap;
+     MapView mapView;
+     GoogleMap googleMap;
 
     MapsActivity mapsActivity;
 
@@ -37,6 +36,7 @@ public class MapFragment extends Fragment {
 
         mapView = (MapView) view.findViewById(R.id.map);
 
+
         mapView.onCreate(savedInstanceState);
 
         mapView.onResume();
@@ -47,7 +47,7 @@ public class MapFragment extends Fragment {
             e.printStackTrace();
         }
 
-       mapView.getMapAsync(
+        mapView.getMapAsync(
                (GoogleMap map) -> {
                    map.setOnMapClickListener(mapsActivity);
                    map.resetMinMaxZoomPreference();

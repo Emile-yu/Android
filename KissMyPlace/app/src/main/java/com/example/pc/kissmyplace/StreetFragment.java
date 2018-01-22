@@ -3,12 +3,10 @@ package com.example.pc.kissmyplace;
 
 import android.os.Bundle;
 import android.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.StreetViewPanoramaView;
@@ -48,7 +46,20 @@ public class StreetFragment extends Fragment {
         streetViewPanoramaView.onCreate(savedInstanceState);
         streetViewPanoramaView.onResume();
 
-        streetViewPanoramaFragment.getStreetViewPanoramaAsync(
+
+        streetViewPanoramaView.getStreetViewPanoramaAsync(
+                new OnStreetViewPanoramaReadyCallback() {
+                    @Override
+                    public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
+                        // Do what you want to do here.
+                        //LatLng l = mapsActivity.start;
+                        LatLng start = new LatLng(54.001615, -2.794561);
+
+                        panorama.setPosition(start);
+                    }
+                }
+        );
+        /*streetViewPanoramaView.getStreetViewPanoramaAsync(
                 (StreetViewPanorama panorama) -> {
                     //LatLng l = new LatLng(mapsActivity.position.get(mapsActivity.current).latitude, mapsActivity.position.get(mapsActivity.current).longitude);
                     LatLng l = mapsActivity.start;
@@ -61,7 +72,7 @@ public class StreetFragment extends Fragment {
                     streetViewPanorama.setZoomGesturesEnabled(true);
                 }
         );
-
+*/
 
 
         return view;
