@@ -12,11 +12,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button b2;
     Button b3;
     Button data;
+    private applicationSetting appSetting;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        appSetting = applicationSetting.getInstance();
 
         b1 = (Button) findViewById(R.id.lvl0);
         b1.setOnClickListener(this);
@@ -26,6 +30,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         b3 = (Button) findViewById(R.id.lvl2);
         b3.setOnClickListener(this);
+
+        data = (Button) findViewById(R.id.data);
+        data.setOnClickListener(this);
+
     }
 
     @Override
@@ -33,24 +41,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button b = (Button) view;
         if(b.getId() == R.id.lvl0){
             Intent intent = new Intent(MainActivity.this,MapsActivity.class);
-            intent.putExtra("lvl","0");
+            appSetting.setSelectedLevel(0);
             startActivity(intent);
 
         }
         if(b.getId() == R.id.lvl1){
             Intent intent = new Intent(MainActivity.this,MapsActivity.class);
-            intent.putExtra("lvl","1");
+            appSetting.setSelectedLevel(1);
+
             startActivity(intent);
 
 
         }
         if(b.getId() == R.id.lvl2){
             Intent intent = new Intent(MainActivity.this,MapsActivity.class);
-
-            intent.putExtra("lvl","2");
+            appSetting.setSelectedLevel(2);
             startActivity(intent);
 
         }
+
+        if(b.getId() == R.id.data){
+            Intent intent = new Intent(MainActivity.this,StatisticActivity.class);
+            startActivity(intent);
+        }
+
 
     }
 }

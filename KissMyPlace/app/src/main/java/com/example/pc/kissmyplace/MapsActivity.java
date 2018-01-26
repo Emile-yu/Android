@@ -2,54 +2,53 @@ package com.example.pc.kissmyplace;
 
 
 import android.content.DialogInterface;
-import android.location.Location;
-import android.location.LocationListener;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
-
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.SupportStreetViewPanoramaFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
-
+import java.util.Calendar;
 import java.util.List;
 
-
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, OnMapClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
-    LatLng start = new LatLng(54.001615, -2.794561);
-    List<LatLng> position = new ArrayList<LatLng>();
+
+    private LatLng start ;
+
+    private citySetting citySetting;
+
+    private applicationSetting applicationSetting;
+
+    private GoogleApiClient googleApiClient;
+
+    double tmpScoreLevel = 0;
 
     int current = 0;
 
+    double highScore = 1000000;
 
-    private AlertDialog alert;
+    int lvl;
+
+    List<LatLng> ListCity = new ArrayList<LatLng>();
+
+    private AlertDialog dialog;
     private AlertDialog.Builder builder;
     private SupportStreetViewPanoramaFragment streetViewPanoramaFragment;
-
-    FragmentTransaction fragmentTransaction;
-    FragmentManager fragmentManager;
-
-
-    MapFragment mapFragment;
-    StreetFragment streetFragment;
 
 
     @Override
@@ -59,43 +58,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
 
+        //lvl = getIntent().getIntExtra("lvl",0);
+        lvl = applicationSetting.getInstance().getSelectedLevel();
+
+        citySetting = new citySetting(lvl);
+
+        ListCity = citySetting.cityData;
+
+        start = ListCity.get(current);
 
 
-        int lvl = getIntent().getIntExtra("lvl",0);
-        if(lvl == 0){
-            position.add(new LatLng(40.7248846, -73.98639679));
-            position.add(new LatLng(39.70718666, -99.37133789));
-            position.add(new LatLng(48.63290859, 2.26318359));
-
-        }
-
-        if(lvl == 1){
-            start = new LatLng(33.87365, 151.20689);
-        }
-
-        if(lvl == 2){
-            start = new LatLng(63.87365, 151.20689);
-        }
+       // applicationSetting = new applicationSetting();
 
 
 
-        MapFragment mapFragment = new MapFragment();
-        mapFragment.mapsActivity = this;
-
-        StreetFragment streetFragment = new StreetFragment();
-        streetFragment.mapsActivity = this;
-
-
-        fragmentManager = this.getFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
 
 
 
-        fragmentTransaction.add(R.id.map, (Fragment)mapFragment);
-        fragmentTransaction.add(R.id.streetviewpanorama, (Fragment)streetFragment);
-        fragmentTransaction.commit();
-
-       /* streetViewPanoramaFragment =
+        //StreetView
+        streetViewPanoramaFragment =
                 (SupportStreetViewPanoramaFragment) getSupportFragmentManager().findFragmentById(R.id.streetviewpanorama);
         streetViewPanoramaFragment.getStreetViewPanoramaAsync(
                 new OnStreetViewPanoramaReadyCallback() {
@@ -107,10 +88,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
 
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        //Mapview
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        */
     }
 
 
@@ -118,7 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         // Setting a click event handler for the map
-       /* mMap.setOnMapClickListener(new OnMapClickListener() {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(final LatLng latLng) {
@@ -126,40 +106,94 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 MarkerOptions markerOptions = new MarkerOptions();
 
                 markerOptions.position(latLng);
-                markerOptions.title(latLng.latitude + " : " + latLng.longitude);
+
+                MarkerOptions markerOptionsdest = new MarkerOptions();
+
+                markerOptionsdest.position(ListCity.get(current));
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                 mMap.clear();
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
                 mMap.addMarker(markerOptions);
-                alert = null;
+                mMap.addMarker(markerOptionsdest);
+
+                PolylineOptions lineOptions = new PolylineOptions();
+                lineOptions.color(Color.RED);
+                lineOptions.width(5);
+                lineOptions.add(latLng);
+                lineOptions.add(ListCity.get(current));
+                mMap.addPolyline(lineOptions);
+
+                dialog = null;
                 builder = new AlertDialog.Builder(MapsActivity.this);
-                alert = builder
+                dialog = builder
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setMessage("You are "+getDistance(start,latLng)+"km away")
+                        .setMessage("You are "+(int)getDistance(ListCity.get(current),latLng)+"km away")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                start = new LatLng(latLng.latitude, latLng.longitude);
 
-                                streetViewPanoramaFragment.getStreetViewPanoramaAsync(
-                                        new OnStreetViewPanoramaReadyCallback() {
-                                            @Override
-                                            public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
-                                                panorama.setPosition(latLng);
+                                mMap.clear();
 
-                                            }
-                                        });                  }
+                                current++;
+                                if (current > ListCity.size()-1) {
+
+                                    EndGame();
+                                } else {
+
+                                    if(getDistance(ListCity.get(current),latLng) < 1000){
+                                        tmpScoreLevel += (highScore - (1000 * getDistance(ListCity.get(current),latLng)));
+
+                                        if(tmpScoreLevel <0 ){
+                                            tmpScoreLevel = 0;
+                                        }
+                                    }
+
+                                    streetViewPanoramaFragment.getStreetViewPanoramaAsync(
+                                            (panorama) -> {
+                                                panorama.setPosition(ListCity.get(current));
+                                            });
+                                }
+
+                            }
+
+
                         })
-
-                        .create();             //创建AlertDialog对象
-                alert.show();
+                        .create();
+                /*Window dialogWindow = alert.getWindow();
+                WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+                dialogWindow.setGravity(Gravity.CENTER);
+                */
+                dialog.show();
 
             }
         });
 
-        */
     }
 
+    public void EndGame(){
+
+        //applicationSetting.setScore(lvl,tmpScoreLevel);
+        dialog = null;
+        builder = new AlertDialog.Builder(MapsActivity.this);
+        dialog = builder
+                .setTitle("Congratulation!!!")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage("You finished the game ! ( Score : "+(int)tmpScoreLevel+" )")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        applicationSetting.getInstance().setScore(lvl,tmpScoreLevel);
+                        applicationSetting.getInstance().setDate(lvl, Calendar.getInstance().getTime());
+                        finish();
+                    }
+
+
+                })
+                .create();
+        dialog.show();
+
+    }
 
 
 
@@ -170,60 +204,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double lon1 = (Math.PI/180)*start.longitude;
         double lon2 = (Math.PI/180)*end.longitude;
 
-
-
-        //地球半径
         double R = 6371;
 
-        //两点间距离 km，如果想要米的话，结果*1000就可以了
         double d =  Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1))*R;
 
         return d;
-    }
-
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-
-        /*MarkerOptions markerOptions = new MarkerOptions();
-
-        markerOptions.position(latLng);
-        markerOptions.title(latLng.latitude + " : " + latLng.longitude);
-        mMap.clear();
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
-        mMap.addMarker(markerOptions);
-        */
-        alert = null;
-        builder = new AlertDialog.Builder(MapsActivity.this);
-        alert = builder
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setMessage("You are "+getDistance(start,latLng)+"km away")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        start = new LatLng(latLng.latitude, latLng.longitude);
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(latLng);
-                        markerOptions.title(latLng.latitude + " : " + latLng.longitude);
-                        mapFragment.googleMap.clear();
-                        mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                        mapFragment.googleMap.addMarker(markerOptions);
-                        /*streetViewPanoramaFragment.getStreetViewPanoramaAsync(
-                                new OnStreetViewPanoramaReadyCallback() {
-                                    @Override
-                                    public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
-                                        panorama.setPosition(latLng);
-
-                                    }
-                                });
-                         */
-                    }
-                })
-
-                .create();             //创建AlertDialog对象
-        alert.show();
-
 
     }
+
+
+
 }
